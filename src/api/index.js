@@ -11,7 +11,7 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use(res => {
   if (!res.data.success) {
     Message.error(res.data.message)
-    Promise.reject(res.data.message)
+    return Promise.reject(res.data.message)
   }
   return res
 }, () => {

@@ -58,6 +58,9 @@
         api.ValidateKeyAllow({
           key: this.key
         }).then(res => {
+          if (!res.data.success) {
+            return
+          }
           if (res.data.data && res.data.data.length === 0) {
             this.$message.warning('没有可查看的设备!')
             return
@@ -76,8 +79,6 @@
             //   }
             // })
           })
-        }).catch(err => {
-          console.log(err)
         })
       },
       getTime() {

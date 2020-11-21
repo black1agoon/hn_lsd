@@ -58,7 +58,6 @@
             this.$message.warning('功能暂未开放, 敬请期待.')
             return
           }
-          console.log(this.$route.path, this.$route.path === '/noOpen')
           this.currentIndex = index
           this.$router.push(item.path)
         }
