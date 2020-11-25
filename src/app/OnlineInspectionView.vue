@@ -4,9 +4,9 @@
       <div class="equipment"
            v-for="(equipment, index) in equipmentList"
            :key="index">
-        <video ref="video" controls="controls" class="video-js video" preload="auto" data-setup="{}">
+        <video ref="video" :id="'myVideo' + index" controls="controls" class="video-js video" preload="auto" data-setup="{}">
           <source :src="'rtmp://lx.wazhiyuan.com:8002/live/' + equipment" type="rtmp/flv" />
-<!--          <source src="rtmp://lx.wazhiyuan.com:8002/live/192.168.3.202_bbd68bd1-cfb4-4cf9-9d93-ac170088acf8" type="rtmp/flv" />-->
+<!--          <source src="rtmp://lx.wazhiyuan.com:8002/live/192.168.3.214_ef5f9166-be3d-4827-af53-ac2400d71c86" type="rtmp/flv" />-->
         </video>
         <div class="name">视频设备</div>
       </div>
@@ -31,6 +31,7 @@
   import api from '@/api'
   import '../assets/video/video-js.css'
   import '../assets/video/videojs-ie8.min.js'
+  import videojs from '../assets/video/video.js'
   export default {
     computed: {
       showTime() {
@@ -46,7 +47,8 @@
         minutes: 0,
         dialogVisible: true,
         key: null,
-        equipmentList: []
+        equipmentList: [],
+        myPlayer: []
       }
     },
     methods: {
@@ -68,7 +70,11 @@
           this.dialogVisible = false
           this.equipmentList = res.data.data
           this.$nextTick(() => {
-            import('../assets/video/video.js')
+            this.myPlayer = []
+            for (let i = 0; i < this.equipmentList.length; i++) {
+              const video = videojs('myVideo' + i)
+              this.myPlayer.push(video)
+            }
             // this.$refs.video.forEach(obj => {
             //   obj.onloadeddata = () => {
             //     var canvas = document.createElement("canvas")
@@ -91,6 +97,12 @@
       next(vm => {
         vm.dialogVisible = true
       })
+    },
+    beforeRouteLeave(to, from, next) {
+      this.myPlayer.forEach(video => {
+        video.dispose()
+      })
+      next()
     }
   }
 </script>
