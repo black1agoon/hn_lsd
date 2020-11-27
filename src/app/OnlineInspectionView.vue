@@ -4,16 +4,13 @@
       <div class="equipment"
            v-for="(equipment, index) in equipmentList"
            :key="index">
-        <video ref="video" :id="'myVideo' + index" controls="controls" class="video-js video" preload="auto" data-setup="{}">
-          <source :src="'rtmp://lx.wazhiyuan.com:8002/live/' + equipment" type="rtmp/flv" />
-<!--          <source src="rtmp://lx.wazhiyuan.com:8002/live/192.168.3.214_ef5f9166-be3d-4827-af53-ac2400d71c86" type="rtmp/flv" />-->
-        </video>
-        <div class="name">视频设备</div>
+        <div class="video" :id="'video' + index"></div>
+        <div class="name">{{equipment.title}}</div>
       </div>
 
     </div>
 
-    <div class="dialog" v-show="dialogVisible">
+    <div class="dialog" v-show="dialogVisible" v-loading="loading">
       <div class="mask"></div>
       <div class="content">
         <div class="tips">请输入密钥</div>
@@ -29,26 +26,16 @@
 
 <script>
   import api from '@/api'
-  import '../assets/video/video-js.css'
-  import '../assets/video/videojs-ie8.min.js'
-  import videojs from '../assets/video/video.js'
+  import '@/../public/static/js/ckplayer.js'
+
   export default {
-    computed: {
-      showTime() {
-        const hour = this.hour > 12 ? this.hour - 12 : this.hour
-        const min = ('00' + this.minutes).substring((this.minutes + '').length)
-        const suffix = this.hour > 12 ? 'pm' : 'am'
-        return `${hour}:${min} ${suffix}`
-      }
-    },
     data() {
       return {
-        hour: 0,
-        minutes: 0,
         dialogVisible: true,
+        loading: false,
         key: null,
         equipmentList: [],
-        myPlayer: []
+        deadline: null
       }
     },
     methods: {
@@ -57,6 +44,7 @@
           this.$message.warning('请输入密钥')
           return
         }
+        this.loading = true
         api.ValidateKeyAllow({
           key: this.key
         }).then(res => {
@@ -68,41 +56,41 @@
             return
           }
           this.dialogVisible = false
-          this.equipmentList = res.data.data
+          this.loading = false
+          this.equipmentList = res.data.data.videoList
+          this.deadline = res.data.data.deadline
+          this.compareTime()
           this.$nextTick(() => {
-            this.myPlayer = []
-            for (let i = 0; i < this.equipmentList.length; i++) {
-              const video = videojs('myVideo' + i)
-              this.myPlayer.push(video)
-            }
-            // this.$refs.video.forEach(obj => {
-            //   obj.onloadeddata = () => {
-            //     var canvas = document.createElement("canvas")
-            //     canvas.width = 310
-            //     canvas.height = 144
-            //     canvas.getContext('2d').drawImage(obj, 0, 0, canvas.width, canvas.height)
-            //     obj.setAttribute("poster", canvas.toDataURL("image/png"))
-            //   }
-            // })
+            this.equipmentList.forEach((eq, idx) => {
+              new window.ckplayer({
+                container: '#video' + idx,
+                variable: 'player',
+                flashplayer: false,
+                html5m3u8: true,
+                autoplay: false,
+                loop: false,
+                live: true,
+                video: `http://lx.wazhiyuan.com:8001/hls/${eq.ipCrm}.m3u8`
+              })
+            })
           })
+        }).catch(() => {
+          this.dialogVisible = true
+          this.loading = false
         })
       },
-      getTime() {
-        const date = new Date()
-        this.hour = date.getHours()
-        this.minutes = date.getMinutes()
+      compareTime() {
+        this.timer = setInterval(() => {
+          const date = new Date().getTime()
+          const deadline = new Date(this.deadline).getTime()
+          if (date > deadline) {
+            this.dialogVisible = true
+            this.equipmentList = []
+            clearInterval(this.timer)
+            this.key = null
+          }
+        }, 1000 * 60)
       }
-    },
-    beforeRouteEnter(to, from, next) {
-      next(vm => {
-        vm.dialogVisible = true
-      })
-    },
-    beforeRouteLeave(to, from, next) {
-      this.myPlayer.forEach(video => {
-        video.dispose()
-      })
-      next()
     }
   }
 </script>
@@ -122,11 +110,13 @@
     display: flex
     flex-wrap: wrap
     align-content: flex-start
-    overflow: hidden
+    overflow-y: auto
     .equipment
       position: relative
-      width: 310px
-      height: 188px
+      /*width: 310px*/
+      /*height: 188px*/
+      width: 410px
+      height: 244px
       margin: 30px 30px 0
       box-shadow: 0 0 2px #ccc
       .mask
@@ -156,7 +146,7 @@
         font-size: 12px
       .video, video
         width: 100%
-        height: 144px
+        height: 200px
         background: #230851
         cursor: pointer
       .name

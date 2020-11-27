@@ -3,7 +3,9 @@
       <el-container>
         <sidebar></sidebar>
         <el-main>
-          <router-view class="router"></router-view>
+          <keep-alive>
+            <router-view class="router"></router-view>
+          </keep-alive>
         </el-main>
       </el-container>
     </el-container>

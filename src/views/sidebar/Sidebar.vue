@@ -39,15 +39,16 @@
             name: '我的订单',
             icon: 'order',
             path: '/order'
-          }, {
-            name: '用户信息',
-            icon: 'userinfo',
-            path: '/noOpen'
-          }, {
-            name: '常见问题',
-            icon: 'question',
-            path: '/noOpen'
           }
+          // , {
+          //   name: '用户信息',
+          //   icon: 'userinfo',
+          //   path: '/noOpen'
+          // }, {
+          //   name: '常见问题',
+          //   icon: 'question',
+          //   path: '/noOpen'
+          // }
         ]
       }
     },

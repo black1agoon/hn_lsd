@@ -2,15 +2,15 @@
   <div class="header-wrapper">
     <div class="logo"></div>
     <ul class="navigation">
-      <li>
-        <router-link to="">首页</router-link>
-      </li>
-      <li>
-        <router-link to="">产品</router-link>
-      </li>
-      <li>
-        <router-link to="">服务</router-link>
-      </li>
+<!--      <li>-->
+<!--        <router-link to="">首页</router-link>-->
+<!--      </li>-->
+<!--      <li>-->
+<!--        <router-link to="">产品</router-link>-->
+<!--      </li>-->
+<!--      <li>-->
+<!--        <router-link to="">服务</router-link>-->
+<!--      </li>-->
       <li :class="{active: $route.path === '/order'}">
         <router-link to="/order">用户中心</router-link>
       </li>
